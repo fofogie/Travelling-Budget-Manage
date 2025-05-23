@@ -138,7 +138,7 @@ func binarySearch(data []categoryAndMoney, target int) {
 
 }
 
-// Procedure Selec
+// Procedure SelectionSort
 func selectionSort(data []categoryAndMoney) {
 	n := len(data)
 	i := 0
@@ -158,7 +158,7 @@ func selectionSort(data []categoryAndMoney) {
 	}
 }
 
-//procedure insertion
+//Procedure InsertionSort
 func insertionSort(data []categoryAndMoney) {
 	i := 1
 	for i < len(data) {
@@ -191,6 +191,3 @@ func displayData(data []categoryAndMoney, plannedMoney int) {
 		fmt.Println("Over Budget: ", -subtrek)
 	}
 }
-
-//Dont use slicing
-//selection sort dont use : data[i], data[min] = data[min], data[i]
