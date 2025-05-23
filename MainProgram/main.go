@@ -115,7 +115,7 @@ func showData(data *[9999]categoryAndMoney, count int) {
 	}
 }
 
-// Sequential Search
+// Sequential Search asdnflasdlfjsdal
 func sequentialSearch(data *[9999]categoryAndMoney, count int, target string) int {
 	for i := 0; i < count; i++ {
 		if data[i].category == target {
@@ -125,7 +125,7 @@ func sequentialSearch(data *[9999]categoryAndMoney, count int, target string) in
 	return -1
 }
 
-// Binary Search 
+// Binary Search jahfasdhkjfdshfjkasf
 func binarySearch(data *[9999]categoryAndMoney, count int, target int) {
 	low := 0
 	high := count - 1
