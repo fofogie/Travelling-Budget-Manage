@@ -13,21 +13,24 @@ func main() {
 	fmt.Scan(&initialBudget)
 
 	var n int
-	fmt.Println("Enter How many category you want to enter first....Note: New categories can be added later on")
+	fmt.Println("Enter how many categories you want to enter first... Note: New categories can be added later on")
 	fmt.Scan(&n)
 
-	var data []categoryAndMoney
+	var data [9999]categoryAndMoney
+	var count int
 
 	// Starting input
 	for i := 0; i < n; i++ {
 		var cat string
 		var amount int
-		fmt.Println("Enter Category : ")
+		fmt.Println("Enter Category:")
 		fmt.Scan(&cat)
-		fmt.Println("Enter Amount : ")
+		fmt.Println("Enter Amount:")
 		fmt.Scan(&amount)
-		data = append(data, categoryAndMoney{cat, amount})
+		data[count] = categoryAndMoney{cat, amount}
+		count++
 	}
+
 	// Menu
 	for {
 		fmt.Println("\n--- Menu ---")
@@ -47,35 +50,38 @@ func main() {
 
 		switch choice {
 		case 1:
-			showData(data)
+			showData(data, count)
 		case 2:
+			if count >= 9999 {
+				fmt.Println("Cannot add more entries. Limit reached.")
+				break
+			}
 			var cath string
 			var amount int
-			fmt.Println("Enter category: ")
+			fmt.Println("Enter category:")
 			fmt.Scan(&cath)
-			fmt.Println("Enter amount: ")
+			fmt.Println("Enter amount:")
 			fmt.Scan(&amount)
-			data = append(data, categoryAndMoney{cath, amount})
+			data[count] = categoryAndMoney{cath, amount}
+			count++
 		case 3:
 			var idx int
-			fmt.Println("Enter index to delete: ")
+			fmt.Println("Enter index to delete:")
 			fmt.Scan(&idx)
-
-			if idx >= 0 && idx < len(data) {
-				for i := idx; i < len(data)-1; i++ {
+			if idx >= 0 && idx < count {
+				for i := idx; i < count-1; i++ {
 					data[i] = data[i+1]
 				}
-				data = data[:len(data)-1]
+				count--
 				fmt.Println("Expense removed.")
 			} else {
 				fmt.Println("Invalid index.")
 			}
-
 		case 4:
 			var cat string
-			fmt.Println("Enter category to search: ")
+			fmt.Println("Enter category to search:")
 			fmt.Scan(&cat)
-			idx := sequentialSearch(data, cat)
+			idx := sequentialSearch(data, count, cat)
 			if idx != -1 {
 				fmt.Printf("Found: %s - %d\n", data[idx].category, data[idx].money)
 			} else {
@@ -83,35 +89,34 @@ func main() {
 			}
 		case 5:
 			var target int
-			fmt.Println("Enter money to search: ")
+			fmt.Println("Enter money to search:")
 			fmt.Scan(&target)
-			binarySearch(data, target)
+			binarySearch(data, count, target)
 		case 6:
-			selectionSort(data)
+			selectionSort(data, count)
 			fmt.Println("Sorted using Selection Sort.")
 		case 7:
-			insertionSort(data)
+			insertionSort(data, count)
 			fmt.Println("Sorted using Insertion Sort.")
 		case 8:
-			displayData(data, initialBudget)
+			displayData(data, count, initialBudget)
 		case 0:
 			return
 		default:
-			fmt.Println("No no no")
+			fmt.Println("Invalid Choice")
 		}
 	}
 }
 
-func showData(data []categoryAndMoney) {
+func showData(data [9999]categoryAndMoney, count int) {
 	fmt.Println("\nAll Expenses:")
-	for i := 0; i < len(data); i++ {
+	for i := 0; i < count; i++ {
 		fmt.Printf("Category: %-10s | Amount: %d\n", data[i].category, data[i].money)
 	}
 }
 
-// Search sequent
-func sequentialSearch(data []categoryAndMoney, target string) int {
-	for i := 0; i < len(data); i++ {
+func sequentialSearch(data [9999]categoryAndMoney, count int, target string) int {
+	for i := 0; i < count; i++ {
 		if data[i].category == target {
 			return i
 		}
@@ -119,10 +124,9 @@ func sequentialSearch(data []categoryAndMoney, target string) int {
 	return -1
 }
 
-//search binary
-func binarySearch(data []categoryAndMoney, target int) {
+func binarySearch(data [9999]categoryAndMoney, count int, target int) {
 	low := 0
-	high := len(data) - 1
+	high := count - 1
 	for low <= high {
 		mid := (low + high) / 2
 		if data[mid].money == target {
@@ -131,37 +135,26 @@ func binarySearch(data []categoryAndMoney, target int) {
 		} else if data[mid].money < target {
 			low = mid + 1
 		} else {
-			low = mid - 1
+			high = mid - 1
 		}
 	}
-	fmt.Print("Ammont not found")
-
+	fmt.Println("Amount not found")
 }
 
-// Procedure SelectionSort
-func selectionSort(data []categoryAndMoney) {
-	n := len(data)
-	i := 0
-	for i < n-1 {
+func selectionSort(data [9999]categoryAndMoney, count int) {
+	for i := 0; i < count-1; i++ {
 		min := i
-		j := i + 1
-		for j < n {
+		for j := i + 1; j < count; j++ {
 			if data[j].money < data[min].money {
 				min = j
 			}
-			j++
 		}
-		temp := data[i]
-		data[i] = data[min]
-		data[min] = temp
-		i++
+		data[i], data[min] = data[min], data[i]
 	}
 }
 
-//Procedure InsertionSort
-func insertionSort(data []categoryAndMoney) {
-	i := 1
-	for i < len(data) {
+func insertionSort(data [9999]categoryAndMoney, count int) {
+	for i := 1; i < count; i++ {
 		key := data[i]
 		j := i - 1
 		for j >= 0 && data[j].money > key.money {
@@ -169,25 +162,22 @@ func insertionSort(data []categoryAndMoney) {
 			j--
 		}
 		data[j+1] = key
-		i++
 	}
 }
 
-func displayData(data []categoryAndMoney, plannedMoney int) {
+func displayData(data [9999]categoryAndMoney, count int, plannedMoney int) {
 	total := 0
-	fmt.Println("Report : ")
-
-	for i := 0; i < len(data); i++ {
+	fmt.Println("Report:")
+	for i := 0; i < count; i++ {
 		fmt.Printf("%s: %d\n", data[i].category, data[i].money)
 		total += data[i].money
 	}
 
-	fmt.Println("Total: ", total)
-
-	subtrek := plannedMoney - total
-	if subtrek >= 0 {
-		fmt.Println("Remaining: ", subtrek)
+	fmt.Println("Total:", total)
+	diff := plannedMoney - total
+	if diff >= 0 {
+		fmt.Println("Remaining:", diff)
 	} else {
-		fmt.Println("Over Budget: ", -subtrek)
+		fmt.Println("Over Budget:", -diff)
 	}
 }
