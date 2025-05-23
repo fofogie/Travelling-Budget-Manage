@@ -153,7 +153,9 @@ func selectionSort(data *[9999]categoryAndMoney, count int) {
 			}
 		}
 		if i != max {
-			data[i], data[max] = data[max], data[i]
+			temp := data[i]
+			data[i] = data[max]
+			data[max] = temp
 		}
 	}
 }
