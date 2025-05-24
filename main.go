@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	//All fyne import
+	//all fyne import
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -21,6 +21,7 @@ var count int
 var initialBudget int
 
 func main() {
+	//Display yeah begitulah
 	a := app.New()
 	w := a.NewWindow("Budget Manager")
 	w.Resize(fyne.NewSize(600, 450))
@@ -47,9 +48,10 @@ func main() {
 	display.Wrapping = fyne.TextWrapWord
 	display.SetMinRowsVisible(10)
 
+	//buttons area
 	setBudgetBtn := widget.NewButton("Set Budget", func() {
-		val, err := toInt(budgetEntry.Text)
-		if err != nil {
+		val := toInt(budgetEntry.Text)
+		if val == 0 && budgetEntry.Text != "0" {
 			dialog.ShowError(fmt.Errorf("invalid budget input"), w)
 			return
 		}
@@ -57,11 +59,10 @@ func main() {
 		dialog.ShowInformation("Budget Set", fmt.Sprintf("Budget set to %d", initialBudget), w)
 	})
 
-	//Adding an array with
 	addExpenseBtn := widget.NewButton("Add Expense", func() {
 		cat := categoryEntry.Text
-		amt, err := toInt(amountEntry.Text)
-		if err != nil || cat == "" {
+		amt := toInt(amountEntry.Text)
+		if (amt == 0 && amountEntry.Text != "0") || cat == "" {
 			dialog.ShowError(fmt.Errorf("invalid category or amount"), w)
 			return
 		}
@@ -76,10 +77,9 @@ func main() {
 		showData(display)
 	})
 
-	//Remove function using shifting
 	removeExpenseBtn := widget.NewButton("Remove Expense", func() {
-		idx, err := toInt(indexEntry.Text)
-		if err != nil || idx < 0 || idx >= count {
+		idx := toInt(indexEntry.Text)
+		if idx < 0 || idx >= count {
 			dialog.ShowError(fmt.Errorf("invalid index"), w)
 			return
 		}
@@ -103,8 +103,8 @@ func main() {
 	})
 
 	searchAmountBtn := widget.NewButton("Search Amount", func() {
-		target, err := toInt(searchAmountEntry.Text)
-		if err != nil {
+		target := toInt(searchAmountEntry.Text)
+		if target == 0 && searchAmountEntry.Text != "0" {
 			dialog.ShowError(fmt.Errorf("invalid amount"), w)
 			return
 		}
@@ -147,6 +147,7 @@ func main() {
 		display.SetText(report)
 	})
 
+	//Show app
 	w.SetContent(container.NewVBox(
 		container.NewGridWithColumns(2, widget.NewLabel("Initial Budget:"), budgetEntry),
 		setBudgetBtn,
@@ -163,13 +164,14 @@ func main() {
 	w.ShowAndRun()
 }
 
-// Manual stringConvert...
-func toInt(s string) (int, error) {
+// Manual strconv
+func toInt(s string) int {
 	n := 0
 	neg := false
 	start := 0
 	if len(s) == 0 {
-		return 0, fmt.Errorf("empty input")
+		fmt.Println("Error: empty input")
+		return 0
 	}
 	if s[0] == '-' {
 		neg = true
@@ -178,14 +180,15 @@ func toInt(s string) (int, error) {
 	for i := start; i < len(s); i++ {
 		ch := s[i]
 		if ch < '0' || ch > '9' {
-			return 0, fmt.Errorf("invalid character")
+			fmt.Println("Error: invalid character")
+			return 0
 		}
 		n = n*10 + int(ch-'0')
 	}
 	if neg {
 		n = -n
 	}
-	return n, nil
+	return n
 }
 
 func showData(display *widget.Entry) {
@@ -196,7 +199,6 @@ func showData(display *widget.Entry) {
 	display.SetText(content)
 }
 
-//Sequential Search OHHH MY GODD
 func sequentialSearch(data [9999]categoryAndMoney, count int, target string) int {
 	for i := 0; i < count; i++ {
 		if data[i].category == target {
@@ -206,7 +208,6 @@ func sequentialSearch(data [9999]categoryAndMoney, count int, target string) int
 	return -1
 }
 
-//Binary Search YOWWWWW
 func binarySearch(data [9999]categoryAndMoney, count int, target int) int {
 	low := 0
 	high := count - 1
@@ -223,7 +224,6 @@ func binarySearch(data [9999]categoryAndMoney, count int, target int) int {
 	return -1
 }
 
-//Selection Sort Descending
 func selectionSort(data *[9999]categoryAndMoney, count int) {
 	for i := 0; i < count-1; i++ {
 		max := i
@@ -240,7 +240,6 @@ func selectionSort(data *[9999]categoryAndMoney, count int) {
 	}
 }
 
-//Insertion Sort Ascending
 func insertionSort(data *[9999]categoryAndMoney, count int) {
 	for i := 1; i < count; i++ {
 		key := data[i]
