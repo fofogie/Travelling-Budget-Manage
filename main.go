@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	//All fyne import
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -195,6 +196,7 @@ func showData(display *widget.Entry) {
 	display.SetText(content)
 }
 
+//Sequential Search OHHH MY GODD
 func sequentialSearch(data [9999]categoryAndMoney, count int, target string) int {
 	for i := 0; i < count; i++ {
 		if data[i].category == target {
@@ -204,6 +206,7 @@ func sequentialSearch(data [9999]categoryAndMoney, count int, target string) int
 	return -1
 }
 
+//Binary Search YOWWWWW
 func binarySearch(data [9999]categoryAndMoney, count int, target int) int {
 	low := 0
 	high := count - 1
