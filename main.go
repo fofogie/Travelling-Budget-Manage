@@ -170,7 +170,6 @@ func toInt(s string) int {
 	neg := false
 	start := 0
 	if len(s) == 0 {
-		fmt.Println("Error: empty input")
 		return 0
 	}
 	if s[0] == '-' {
@@ -180,7 +179,6 @@ func toInt(s string) int {
 	for i := start; i < len(s); i++ {
 		ch := s[i]
 		if ch < '0' || ch > '9' {
-			fmt.Println("Error: invalid character")
 			return 0
 		}
 		n = n*10 + int(ch-'0')
