@@ -7,6 +7,18 @@ type categoryAndMoney struct {
 	money    int
 }
 
+var categoryGroups = map[string]string{
+	"Food":      "Food",
+	"Drinks":    "Food",
+	"Groceries": "Food",
+	"Bus":       "Transport",
+	"Train":     "Transport",
+	"Taxi":      "Transport",
+	"Plane":     "Transport",
+	"Parks":     "Transport",
+	"Movies":    "Entertainment",
+}
+
 func main() {
 	var initialBudget int
 	fmt.Print("Enter your starting Budget: ")
@@ -42,6 +54,9 @@ func main() {
 		fmt.Println("6. Sort by money (Selection Sort Descending)")
 		fmt.Println("7. Sort by money (Insertion Sort Ascending)")
 		fmt.Println("8. Show report")
+		fmt.Println("9. Change Expense (Based on Index)")
+		fmt.Println("10. Sort by category by alphabet")
+		fmt.Println("11. Show grouped category report")
 		fmt.Println("0. Exit")
 		fmt.Print("Choose: ")
 
@@ -100,6 +115,24 @@ func main() {
 			fmt.Println("Sorted using Insertion Sort (Ascending).")
 		case 8:
 			displayData(&data, count, initialBudget)
+		case 9:
+			var idx, newAmount int
+			fmt.Println("Enter index to edit:")
+			fmt.Scan(&idx)
+			if idx >= 0 && idx < count {
+				fmt.Printf("Current category value: %s - %d\n", data[idx].category, data[idx].money)
+				fmt.Println("Input new amount:")
+				fmt.Scan(&newAmount)
+				data[idx].money = newAmount
+				fmt.Println("Expense Changed.")
+			} else {
+				fmt.Println("Index Not Found")
+			}
+		case 10:
+			insertionSortByAlphabet(&data, count)
+			fmt.Println("Alphabetically sorted.")
+		case 11:
+			showGroupedReport(&data, count, initialBudget)
 		case 0:
 			return
 		default:
@@ -115,7 +148,7 @@ func showData(data *[9999]categoryAndMoney, count int) {
 	}
 }
 
-// Sequential Search jklsjaflksafjklsafjk
+// Sequential Search
 func sequentialSearch(data *[9999]categoryAndMoney, count int, target string) int {
 	for i := 0; i < count; i++ {
 		if data[i].category == target {
@@ -125,7 +158,7 @@ func sequentialSearch(data *[9999]categoryAndMoney, count int, target string) in
 	return -1
 }
 
-// Binary Search jahfasdhkjfdshfjkasf
+// Binary Search
 func binarySearch(data *[9999]categoryAndMoney, count int, target int) {
 	low := 0
 	high := count - 1
@@ -173,6 +206,19 @@ func insertionSort(data *[9999]categoryAndMoney, count int) {
 	}
 }
 
+func insertionSortByAlphabet(data *[9999]categoryAndMoney, count int) {
+	for i := 1; i < count; i++ {
+		key := data[i]
+		j := i - 1
+		for j >= 0 && data[j].category > key.category {
+			data[j+1] = data[j]
+			j--
+		}
+		data[j+1] = key
+	}
+}
+
+//Displays the group data
 func displayData(data *[9999]categoryAndMoney, count int, plannedMoney int) {
 	total := 0
 	fmt.Println("Report:")
@@ -187,5 +233,28 @@ func displayData(data *[9999]categoryAndMoney, count int, plannedMoney int) {
 		fmt.Println("Remaining:", diff)
 	} else {
 		fmt.Println("Over Budget:", -diff)
+	}
+}
+
+//This here is the function for putting them all in groups
+func showGroupedReport(data *[9999]categoryAndMoney, count int, budget int) {
+	groupSums := make(map[string]int)
+
+	for i := 0; i < count; i++ {
+		cat := data[i].category
+		group, exists := categoryGroups[cat]
+		if !exists {
+			group = "Other"
+		}
+		groupSums[group] += data[i].money
+	}
+
+	fmt.Println("\nGrouped Category Report:")
+	for group, sum := range groupSums {
+		fmt.Printf("%-15s : %d", group, sum)
+		if sum > budget/2 {
+			fmt.Printf("  <-- Yeah this is Over 50%% of the budget")
+		}
+		fmt.Println()
 	}
 }
