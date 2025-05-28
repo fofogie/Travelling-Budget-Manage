@@ -20,6 +20,17 @@ var data [9999]categoryAndMoney
 var count int
 var initialBudget int
 
+//Groups
+var categoryGroups = map[string]string{
+	"Food":      "Food",
+	"Snacks":    "Food",
+	"Groceries": "Food",
+	"Bus":       "Transport",
+	"Train":     "Transport",
+	"Taxi":      "Transport",
+	"Movies":    "Entertainment",
+}
+
 func main() {
 	//Display yeah begitulah
 	a := app.New()
@@ -44,11 +55,23 @@ func main() {
 	searchAmountEntry := widget.NewEntry()
 	searchAmountEntry.SetPlaceHolder("Amount to search")
 
+	editIndexEntry := widget.NewEntry()
+	editIndexEntry.SetPlaceHolder("Index to edit")
+
+	editAmountEntry := widget.NewEntry()
+	editAmountEntry.SetPlaceHolder("New amount")
+
 	display := widget.NewMultiLineEntry()
 	display.Wrapping = fyne.TextWrapWord
 	display.SetMinRowsVisible(10)
 
-	//buttons area
+	groupingInfo := widget.NewLabel(`Category Groupings:
+	"Food", "Snacks", "Groceries" → Food
+	"Bus", "Train", "Taxi" → Transport
+	"Movies" → Entertainment
+	Other categories → Other`)
+
+	//Button area
 	setBudgetBtn := widget.NewButton("Set Budget", func() {
 		val := toInt(budgetEntry.Text)
 		if val == 0 && budgetEntry.Text != "0" {
@@ -130,6 +153,26 @@ func main() {
 		dialog.ShowInformation("Sort", "Data sorted using Insertion Sort (Ascending).", w)
 	})
 
+	sortAlphaBtn := widget.NewButton("Sort A-Z", func() {
+		insertionSortByAlphabet(&data, count)
+		showData(display)
+		dialog.ShowInformation("Sort", "Data sorted alphabetically by category.", w)
+	})
+
+	editExpenseBtn := widget.NewButton("Edit Amount", func() {
+		idx := toInt(editIndexEntry.Text)
+		newAmt := toInt(editAmountEntry.Text)
+		if idx >= 0 && idx < count {
+			data[idx].money = newAmt
+			dialog.ShowInformation("Updated", "Expense updated.", w)
+			editIndexEntry.SetText("")
+			editAmountEntry.SetText("")
+			showData(display)
+		} else {
+			dialog.ShowError(fmt.Errorf("invalid index"), w)
+		}
+	})
+
 	reportBtn := widget.NewButton("Show Report", func() {
 		total := 0
 		report := "Report:\n"
@@ -144,6 +187,7 @@ func main() {
 		} else {
 			report += fmt.Sprintf("Over Budget: %d\n", -diff)
 		}
+		report += getGroupedReport(&data, count, initialBudget)
 		display.SetText(report)
 	})
 
@@ -156,7 +200,10 @@ func main() {
 		container.NewGridWithColumns(2, indexEntry, removeExpenseBtn),
 		container.NewGridWithColumns(2, searchCategoryEntry, searchCategoryBtn),
 		container.NewGridWithColumns(2, searchAmountEntry, searchAmountBtn),
-		container.NewHBox(selectionSortBtn, insertionSortBtn, reportBtn),
+		container.NewGridWithColumns(2, editIndexEntry, editAmountEntry),
+		editExpenseBtn,
+		container.NewHBox(selectionSortBtn, insertionSortBtn, sortAlphaBtn, reportBtn),
+		groupingInfo,
 		widget.NewLabel("Data Display:"),
 		display,
 	))
@@ -248,4 +295,39 @@ func insertionSort(data *[9999]categoryAndMoney, count int) {
 		}
 		data[j+1] = key
 	}
+}
+
+//Alphabetical sort
+func insertionSortByAlphabet(data *[9999]categoryAndMoney, count int) {
+	for i := 1; i < count; i++ {
+		key := data[i]
+		j := i - 1
+		for j >= 0 && data[j].category > key.category {
+			data[j+1] = data[j]
+			j--
+		}
+		data[j+1] = key
+	}
+}
+
+//Displays the group data
+func getGroupedReport(data *[9999]categoryAndMoney, count int, budget int) string {
+	groupSums := make(map[string]int)
+	for i := 0; i < count; i++ {
+		cat := data[i].category
+		group, exists := categoryGroups[cat]
+		if !exists {
+			group = "Other"
+		}
+		groupSums[group] += data[i].money
+	}
+	report := "\nGrouped Category Report:\n"
+	for group, sum := range groupSums {
+		report += fmt.Sprintf("%-15s : %d", group, sum)
+		if sum > budget/2 {
+			report += "  <-- Yeah this is Over 50% of the budget"
+		}
+		report += "\n"
+	}
+	return report
 }
