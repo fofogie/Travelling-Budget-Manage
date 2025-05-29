@@ -11,16 +11,18 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+const maxSize = 99999999
+
 type categoryAndMoney struct {
 	category string
 	money    int
 }
 
-var data [9999]categoryAndMoney
+var data [maxSize]categoryAndMoney
 var count int
 var initialBudget int
 
-//Groups
+// Groups
 var categoryGroups = map[string]string{
 	"Food":      "Food",
 	"Snacks":    "Food",
@@ -73,31 +75,12 @@ func main() {
 
 	//Button area
 	setBudgetBtn := widget.NewButton("Set Budget", func() {
-		val := toInt(budgetEntry.Text)
-		if val == 0 && budgetEntry.Text != "0" {
-			dialog.ShowError(fmt.Errorf("invalid budget input"), w)
-			return
-		}
-		initialBudget = val
-		dialog.ShowInformation("Budget Set", fmt.Sprintf("Budget set to %d", initialBudget), w)
+		setBudgetBtnPressed(budgetEntry, w)
 	})
 
+
 	addExpenseBtn := widget.NewButton("Add Expense", func() {
-		cat := categoryEntry.Text
-		amt := toInt(amountEntry.Text)
-		if (amt == 0 && amountEntry.Text != "0") || cat == "" {
-			dialog.ShowError(fmt.Errorf("invalid category or amount"), w)
-			return
-		}
-		if count >= 9999 {
-			dialog.ShowError(fmt.Errorf("data limit reached"), w)
-			return
-		}
-		data[count] = categoryAndMoney{cat, amt}
-		count++
-		categoryEntry.SetText("")
-		amountEntry.SetText("")
-		showData(display)
+		addExpenseBtnPressed(categoryEntry, amountEntry, display, w)
 	})
 
 	removeExpenseBtn := widget.NewButton("Remove Expense", func() {
@@ -159,18 +142,9 @@ func main() {
 		dialog.ShowInformation("Sort", "Data sorted alphabetically by category.", w)
 	})
 
+	
 	editExpenseBtn := widget.NewButton("Edit Amount", func() {
-		idx := toInt(editIndexEntry.Text)
-		newAmt := toInt(editAmountEntry.Text)
-		if idx >= 0 && idx < count {
-			data[idx].money = newAmt
-			dialog.ShowInformation("Updated", "Expense updated.", w)
-			editIndexEntry.SetText("")
-			editAmountEntry.SetText("")
-			showData(display)
-		} else {
-			dialog.ShowError(fmt.Errorf("invalid index"), w)
-		}
+		editExpenseBtnPressed(editIndexEntry, editAmountEntry, display, w)
 	})
 
 	reportBtn := widget.NewButton("Show Report", func() {
@@ -236,6 +210,7 @@ func toInt(s string) int {
 	return n
 }
 
+
 func showData(display *widget.Entry) {
 	content := "All Entries:\n"
 	for i := 0; i < count; i++ {
@@ -244,7 +219,7 @@ func showData(display *widget.Entry) {
 	display.SetText(content)
 }
 
-func sequentialSearch(data [9999]categoryAndMoney, count int, target string) int {
+func sequentialSearch(data [maxSize]categoryAndMoney, count int, target string) int {
 	for i := 0; i < count; i++ {
 		if data[i].category == target {
 			return i
@@ -253,7 +228,7 @@ func sequentialSearch(data [9999]categoryAndMoney, count int, target string) int
 	return -1
 }
 
-func binarySearch(data [9999]categoryAndMoney, count int, target int) int {
+func binarySearch(data [maxSize]categoryAndMoney, count int, target int) int {
 	low := 0
 	high := count - 1
 	for low <= high {
@@ -269,7 +244,7 @@ func binarySearch(data [9999]categoryAndMoney, count int, target int) int {
 	return -1
 }
 
-func selectionSort(data *[9999]categoryAndMoney, count int) {
+func selectionSort(data *[maxSize]categoryAndMoney, count int) {
 	for i := 0; i < count-1; i++ {
 		max := i
 		for j := i + 1; j < count; j++ {
@@ -285,7 +260,7 @@ func selectionSort(data *[9999]categoryAndMoney, count int) {
 	}
 }
 
-func insertionSort(data *[9999]categoryAndMoney, count int) {
+func insertionSort(data *[maxSize]categoryAndMoney, count int) {
 	for i := 1; i < count; i++ {
 		key := data[i]
 		j := i - 1
@@ -297,8 +272,8 @@ func insertionSort(data *[9999]categoryAndMoney, count int) {
 	}
 }
 
-//Alphabetical sort
-func insertionSortByAlphabet(data *[9999]categoryAndMoney, count int) {
+// Alphabetical sort
+func insertionSortByAlphabet(data *[maxSize]categoryAndMoney, count int) {
 	for i := 1; i < count; i++ {
 		key := data[i]
 		j := i - 1
@@ -310,24 +285,114 @@ func insertionSortByAlphabet(data *[9999]categoryAndMoney, count int) {
 	}
 }
 
-//Displays the group data
-func getGroupedReport(data *[9999]categoryAndMoney, count int, budget int) string {
-	groupSums := make(map[string]int)
+// Displays the group data
+func getGroupedReport(data *[maxSize]categoryAndMoney, count int, budget int) string {
+	var groupNames [100]string
+	var groupSums [100]int
+	groupCount := 0
+
 	for i := 0; i < count; i++ {
 		cat := data[i].category
 		group, exists := categoryGroups[cat]
 		if !exists {
 			group = "Other"
 		}
-		groupSums[group] += data[i].money
+
+		found := false
+		idx := 0
+		for j := 0; j < groupCount; j++ {
+			if groupNames[j] == group {
+				found = true
+				idx = j
+			}
+		}
+
+		if found {
+			groupSums[idx] += data[i].money
+		} else if groupCount < len(groupNames) {
+			groupNames[groupCount] = group
+			groupSums[groupCount] = data[i].money
+			groupCount++
+		}
 	}
+
 	report := "\nGrouped Category Report:\n"
-	for group, sum := range groupSums {
-		report += fmt.Sprintf("%-15s : %d", group, sum)
-		if sum > budget/2 {
+	for i := 0; i < groupCount; i++ {
+		report += fmt.Sprintf("%-15s : %d", groupNames[i], groupSums[i])
+		if groupSums[i] > budget/2 {
 			report += "  <-- Yeah this is Over 50% of the budget"
 		}
 		report += "\n"
 	}
 	return report
+}
+
+//Added Functions for the buttons on the main....So its bareable to see for the first few lines :((((. And also to avoid the usage of negative numbers and empty arrays
+func addExpenseBtnPressed(categoryEntry *widget.Entry, amountEntry *widget.Entry, display *widget.Entry, w fyne.Window) {
+	cat := categoryEntry.Text
+	cat = trimSpaces(cat)
+	amt := toInt(amountEntry.Text)
+
+	if cat == "" || amt <= 0 {
+		dialog.ShowError(fmt.Errorf("cant be less than 0 or 0"), w)
+		return
+	}
+	if count >= 9999 {
+		dialog.ShowError(fmt.Errorf("data limit reached"), w)
+		return
+	}
+	data[count] = categoryAndMoney{cat, amt}
+	count++
+	categoryEntry.SetText("")
+	amountEntry.SetText("")
+	showData(display)
+}
+
+
+func editExpenseBtnPressed(editIndexEntry *widget.Entry, editAmountEntry *widget.Entry, display *widget.Entry, w fyne.Window) {
+	idx := toInt(editIndexEntry.Text)
+	newAmt := toInt(editAmountEntry.Text)
+	if idx < 0 || idx >= count {
+		dialog.ShowError(fmt.Errorf("invalid index"), w)
+		return
+	}
+	if newAmt <= 0 {
+		dialog.ShowError(fmt.Errorf("cant be less than 0 or 0"), w)
+		return
+	}
+	data[idx].money = newAmt
+	dialog.ShowInformation("Updated", "Expense updated.", w)
+	editIndexEntry.SetText("")
+	editAmountEntry.SetText("")
+	showData(display)
+}
+
+
+func setBudgetBtnPressed(budgetEntry *widget.Entry, w fyne.Window) {
+	val := toInt(budgetEntry.Text)
+	if val <= 0 {
+		dialog.ShowError(fmt.Errorf("cant be less than 0 or 0"), w)
+		return
+	}
+	initialBudget = val
+	dialog.ShowInformation("Budget Set", fmt.Sprintf("Budget set to %d", initialBudget), w)
+}
+
+
+
+func trimSpaces(s string) string {
+	start := 0
+	for start < len(s) && s[start] == ' ' {
+		start++
+	}
+	end := len(s) - 1
+	for end >= 0 && s[end] == ' ' {
+		end--
+	}
+	
+	result := ""
+	for i := start; i <= end && i < len(s); i++ {
+		result += string(s[i])
+	}
+	return result
 }
