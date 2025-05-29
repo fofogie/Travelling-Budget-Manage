@@ -379,7 +379,7 @@ func setBudgetBtnPressed(budgetEntry *widget.Entry, w fyne.Window) {
 }
 
 
-
+//Manual Space Trimming
 func trimSpaces(s string) string {
 	start := 0
 	for start < len(s) && s[start] == ' ' {
