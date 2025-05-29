@@ -2,6 +2,8 @@ package main
 
 import "fmt"
 
+const maxSize = 99999999
+
 type categoryAndMoney struct {
 	category string
 	money    int
@@ -15,23 +17,33 @@ var categoryGroups = map[string]string{
 	"Train":     "Transport",
 	"Taxi":      "Transport",
 	"Plane":     "Transport",
-	"Parks":     "Transport",
+	"Parks":     "Entertainment",
 	"Movies":    "Entertainment",
 }
 
 func main() {
 	var initialBudget int
-	fmt.Print("Enter your starting Budget: ")
-	fmt.Scan(&initialBudget)
+	for {
+		fmt.Println("Enter your starting Budget....Note : Must be more than 0 ")
+		fmt.Scan(&initialBudget)
+		if initialBudget > 0 && initialBudget != 0 {
+			break
+		}
+		fmt.Println("Budget must be greater than 0.")
+	}
 
 	var n int
-	fmt.Println("Enter how many categories you want to enter first... Note: New categories can be added later on")
-	fmt.Scan(&n)
+	for {
+		fmt.Println("Enter how many categories you want to enter first... Note: New categories can be added later on")
+		fmt.Scan(&n)
+		if n > 0 && n <= maxSize {
+			break
+		}
+		fmt.Println("Enter a number Greater than 0", maxSize)
+	}
 
-	var data [9999]categoryAndMoney
+	var data [maxSize]categoryAndMoney
 	var count int
-
-	// Starting input
 	for i := 0; i < n; i++ {
 		var cat string
 		var amount int
@@ -43,7 +55,6 @@ func main() {
 		count++
 	}
 
-	// Menu
 	for {
 		fmt.Println("\n--- Menu ---")
 		fmt.Println("1. Show all data")
@@ -67,21 +78,29 @@ func main() {
 		case 1:
 			showData(&data, count)
 		case 2:
-			if count >= 9999 {
+			if count >= maxSize {
 				fmt.Println("Cannot add more entries. Limit reached.")
 				break
 			}
-			var cath string
+			var cat string
+			fmt.Print("Enter Category: ")
+			fmt.Scanf(" %[^\n]s", &cat)
+
 			var amount int
-			fmt.Println("Enter category:")
-			fmt.Scan(&cath)
-			fmt.Println("Enter amount:")
-			fmt.Scan(&amount)
-			data[count] = categoryAndMoney{cath, amount}
+			for {
+				fmt.Print("Enter Amount: ")
+				fmt.Scan(&amount)
+				if amount > 0 {
+					break
+				}
+				fmt.Println("Enter a number Greater than 0")
+			}
+
+			data[count] = categoryAndMoney{cat, amount}
 			count++
 		case 3:
 			var idx int
-			fmt.Println("Enter index to delete:")
+			fmt.Print("Enter index to delete: ")
 			fmt.Scan(&idx)
 			if idx >= 0 && idx < count {
 				for i := idx; i < count-1; i++ {
@@ -93,10 +112,10 @@ func main() {
 				fmt.Println("Invalid index.")
 			}
 		case 4:
-			var cat string
-			fmt.Println("Enter category to search:")
-			fmt.Scan(&cat)
-			idx := sequentialSearch(&data, count, cat)
+			var target string
+			fmt.Print("Enter category to search: ")
+			fmt.Scanf(" %[^\n]s", &target)
+			idx := sequentialSearch(&data, count, target)
 			if idx != -1 {
 				fmt.Printf("Found: %s - %d\n", data[idx].category, data[idx].money)
 			} else {
@@ -104,7 +123,7 @@ func main() {
 			}
 		case 5:
 			var target int
-			fmt.Println("Enter money to search:")
+			fmt.Print("Enter money to search: ")
 			fmt.Scan(&target)
 			binarySearch(&data, count, target)
 		case 6:
@@ -117,39 +136,45 @@ func main() {
 			displayData(&data, count, initialBudget)
 		case 9:
 			var idx, newAmount int
-			fmt.Println("Enter index to edit:")
+			fmt.Print("Enter index to edit: ")
 			fmt.Scan(&idx)
 			if idx >= 0 && idx < count {
-				fmt.Printf("Current category value: %s - %d\n", data[idx].category, data[idx].money)
-				fmt.Println("Input new amount:")
-				fmt.Scan(&newAmount)
+				fmt.Printf("Current: %s - %d\n", data[idx].category, data[idx].money)
+				for {
+					fmt.Print("Enter new amount: ")
+					fmt.Scan(&newAmount)
+					if newAmount > 0 {
+						break
+					}
+					fmt.Println("Enter a number Greater than 0")
+				}
 				data[idx].money = newAmount
-				fmt.Println("Expense Changed.")
+				fmt.Println("Expense updated.")
 			} else {
-				fmt.Println("Index Not Found")
+				fmt.Println("Invalid index.")
 			}
 		case 10:
 			insertionSortByAlphabet(&data, count)
-			fmt.Println("Alphabetically sorted.")
+			fmt.Println("Sorted alphabetically.")
 		case 11:
 			showGroupedReport(&data, count, initialBudget)
 		case 0:
 			return
 		default:
-			fmt.Println("Invalid Choice")
+			fmt.Println("Invalid choice.")
 		}
 	}
 }
 
-func showData(data *[9999]categoryAndMoney, count int) {
+
+func showData(data *[maxSize]categoryAndMoney, count int) {
 	fmt.Println("\nAll Expenses:")
 	for i := 0; i < count; i++ {
 		fmt.Printf("Category: %-10s | Amount: %d\n", data[i].category, data[i].money)
 	}
 }
 
-// Sequential Search
-func sequentialSearch(data *[9999]categoryAndMoney, count int, target string) int {
+func sequentialSearch(data *[maxSize]categoryAndMoney, count int, target string) int {
 	for i := 0; i < count; i++ {
 		if data[i].category == target {
 			return i
@@ -158,8 +183,7 @@ func sequentialSearch(data *[9999]categoryAndMoney, count int, target string) in
 	return -1
 }
 
-// Binary Search
-func binarySearch(data *[9999]categoryAndMoney, count int, target int) {
+func binarySearch(data *[maxSize]categoryAndMoney, count int, target int) {
 	low := 0
 	high := count - 1
 	for low <= high {
@@ -176,8 +200,7 @@ func binarySearch(data *[9999]categoryAndMoney, count int, target int) {
 	fmt.Println("Amount not found")
 }
 
-// Selection Sort Descending
-func selectionSort(data *[9999]categoryAndMoney, count int) {
+func selectionSort(data *[maxSize]categoryAndMoney, count int) {
 	for i := 0; i < count-1; i++ {
 		max := i
 		for j := i + 1; j < count; j++ {
@@ -193,8 +216,7 @@ func selectionSort(data *[9999]categoryAndMoney, count int) {
 	}
 }
 
-// Insertion Sort Ascending
-func insertionSort(data *[9999]categoryAndMoney, count int) {
+func insertionSort(data *[maxSize]categoryAndMoney, count int) {
 	for i := 1; i < count; i++ {
 		key := data[i]
 		j := i - 1
@@ -206,7 +228,7 @@ func insertionSort(data *[9999]categoryAndMoney, count int) {
 	}
 }
 
-func insertionSortByAlphabet(data *[9999]categoryAndMoney, count int) {
+func insertionSortByAlphabet(data *[maxSize]categoryAndMoney, count int) {
 	for i := 1; i < count; i++ {
 		key := data[i]
 		j := i - 1
@@ -218,8 +240,7 @@ func insertionSortByAlphabet(data *[9999]categoryAndMoney, count int) {
 	}
 }
 
-//Displays the group data
-func displayData(data *[9999]categoryAndMoney, count int, plannedMoney int) {
+func displayData(data *[maxSize]categoryAndMoney, count int, plannedMoney int) {
 	total := 0
 	fmt.Println("Report:")
 	for i := 0; i < count; i++ {
@@ -236,10 +257,8 @@ func displayData(data *[9999]categoryAndMoney, count int, plannedMoney int) {
 	}
 }
 
-//This here is the function for putting them all in groups
-func showGroupedReport(data *[9999]categoryAndMoney, count int, budget int) {
+func showGroupedReport(data *[maxSize]categoryAndMoney, count int, budget int) {
 	groupSums := make(map[string]int)
-
 	for i := 0; i < count; i++ {
 		cat := data[i].category
 		group, exists := categoryGroups[cat]
