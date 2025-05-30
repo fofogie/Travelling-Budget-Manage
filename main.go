@@ -11,7 +11,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-const maxSize = 99999999
+const maxSize = 99999
 
 type categoryAndMoney struct {
 	category string
@@ -330,7 +330,6 @@ func getGroupedReport(data *[maxSize]categoryAndMoney, count int, budget int) st
 //Added Functions for the buttons on the main....So its bareable to see for the first few lines :((((. And also to avoid the usage of negative numbers and empty arrays
 func addExpenseBtnPressed(categoryEntry *widget.Entry, amountEntry *widget.Entry, display *widget.Entry, w fyne.Window) {
 	cat := categoryEntry.Text
-	cat = trimSpaces(cat)
 	amt := toInt(amountEntry.Text)
 
 	if cat == "" || amt <= 0 {
@@ -378,21 +377,3 @@ func setBudgetBtnPressed(budgetEntry *widget.Entry, w fyne.Window) {
 	dialog.ShowInformation("Budget Set", fmt.Sprintf("Budget set to %d", initialBudget), w)
 }
 
-
-//Manual Space Trimming
-func trimSpaces(s string) string {
-	start := 0
-	for start < len(s) && s[start] == ' ' {
-		start++
-	}
-	end := len(s) - 1
-	for end >= 0 && s[end] == ' ' {
-		end--
-	}
-	
-	result := ""
-	for i := start; i <= end && i < len(s); i++ {
-		result += string(s[i])
-	}
-	return result
-}
