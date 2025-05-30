@@ -23,23 +23,21 @@ var categoryGroups = map[string]string{
 
 func main() {
 	var initialBudget int
-	for {
+	for initialBudget <= 0 {
 		fmt.Println("Enter your starting Budget....Note : Must be more than 0 ")
 		fmt.Scan(&initialBudget)
-		if initialBudget > 0 && initialBudget != 0 {
-			break
+		if initialBudget <= 0 {
+			fmt.Println("Budget must be greater than 0.")
 		}
-		fmt.Println("Budget must be greater than 0.")
 	}
 
 	var n int
-	for {
+	for n <= 0 || n > maxSize {
 		fmt.Println("Enter how many categories you want to enter first... Note: New categories can be added later on")
 		fmt.Scan(&n)
-		if n > 0 && n <= maxSize {
-			break
+		if n <= 0 || n > maxSize {
+			fmt.Println("Enter a number Greater than 0", maxSize)
 		}
-		fmt.Println("Enter a number Greater than 0", maxSize)
 	}
 
 	var data [maxSize]categoryAndMoney
@@ -55,7 +53,8 @@ func main() {
 		count++
 	}
 
-	for {
+	exit := false
+	for !exit {
 		fmt.Println("\n--- Menu ---")
 		fmt.Println("1. Show all data")
 		fmt.Println("2. Add new expense")
@@ -74,31 +73,29 @@ func main() {
 		var choice int
 		fmt.Scan(&choice)
 
-		switch choice {
-		case 1:
+		if choice == 1 {
 			showData(&data, count)
-		case 2:
-			if count >= maxSize {
-				fmt.Println("Cannot add more entries. Limit reached.")
-				break
-			}
-			var cat string
-			fmt.Print("Enter Category: ")
-			fmt.Scanf(" %[^\n]s", &cat)
+		} else if choice == 2 {
+			if count < 9999 {
+				var cath string
+				var amount int
+				fmt.Println("Enter category:")
+				fmt.Scan(&cath)
 
-			var amount int
-			for {
-				fmt.Print("Enter Amount: ")
-				fmt.Scan(&amount)
-				if amount > 0 {
-					break
+				for {
+					fmt.Println("Enter amount:")
+					fmt.Scan(&amount)
+					if amount > 0 {
+						break
+					}
+					fmt.Println("Enter a number Greater than 0")
 				}
-				fmt.Println("Enter a number Greater than 0")
+				data[count] = categoryAndMoney{cath, amount}
+				count++
+			} else {
+				fmt.Println("Cannot add more entries. Limit reached.")
 			}
-
-			data[count] = categoryAndMoney{cat, amount}
-			count++
-		case 3:
+		} else if choice == 3 {
 			var idx int
 			fmt.Print("Enter index to delete: ")
 			fmt.Scan(&idx)
@@ -111,7 +108,7 @@ func main() {
 			} else {
 				fmt.Println("Invalid index.")
 			}
-		case 4:
+		} else if choice == 4 {
 			var target string
 			fmt.Print("Enter category to search: ")
 			fmt.Scanf(" %[^\n]s", &target)
@@ -121,20 +118,20 @@ func main() {
 			} else {
 				fmt.Println("Not found.")
 			}
-		case 5:
+		} else if choice == 5 {
 			var target int
 			fmt.Print("Enter money to search: ")
 			fmt.Scan(&target)
 			binarySearch(&data, count, target)
-		case 6:
+		} else if choice == 6 {
 			selectionSort(&data, count)
 			fmt.Println("Sorted using Selection Sort (Descending).")
-		case 7:
+		} else if choice == 7 {
 			insertionSort(&data, count)
 			fmt.Println("Sorted using Insertion Sort (Ascending).")
-		case 8:
+		} else if choice == 8 {
 			displayData(&data, count, initialBudget)
-		case 9:
+		} else if choice == 9 {
 			var idx, newAmount int
 			fmt.Print("Enter index to edit: ")
 			fmt.Scan(&idx)
@@ -144,28 +141,27 @@ func main() {
 					fmt.Print("Enter new amount: ")
 					fmt.Scan(&newAmount)
 					if newAmount > 0 {
+						data[idx].money = newAmount
+						fmt.Println("Expense updated.")
 						break
 					}
 					fmt.Println("Enter a number Greater than 0")
 				}
-				data[idx].money = newAmount
-				fmt.Println("Expense updated.")
 			} else {
 				fmt.Println("Invalid index.")
 			}
-		case 10:
+		} else if choice == 10 {
 			insertionSortByAlphabet(&data, count)
 			fmt.Println("Sorted alphabetically.")
-		case 11:
+		} else if choice == 11 {
 			showGroupedReport(&data, count, initialBudget)
-		case 0:
-			return
-		default:
+		} else if choice == 0 {
+			exit = true
+		} else {
 			fmt.Println("Invalid choice.")
 		}
 	}
 }
-
 
 func showData(data *[maxSize]categoryAndMoney, count int) {
 	fmt.Println("\nAll Expenses:")
