@@ -7,4 +7,7 @@ This project was originally made to run in the terminal but later on was transfe
 Hence the original terminal made code is in the "TerminalProgram" folder. Which can be run at your any code editor and even in the Windows CMD with the command "go run main.go".
 Meanwhile the application source code is in the main.go outside of the "TerminalProgram" folder, the app can be downloaded from the zip or again can be locally run on the windows CMD by again with the command "go run main.go".
 
+How to Download : 
+
+
 _Thank You for Reading_ 
