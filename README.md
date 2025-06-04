@@ -8,6 +8,12 @@ Hence the original terminal made code is in the "TerminalProgram" folder. Which 
 Meanwhile the application source code is in the main.go outside of the "TerminalProgram" folder, the app can be downloaded from the zip or again can be locally run on the windows CMD by again with the command "go run main.go".
 
 How to Download : 
+(Terminal Version) : 
+1. Download the main.go file inside the "TerminalProgram" folder and then run it in your local terminal or copy paste the code and run it in an online compiler
 
+(Software Version) : 
+1. Download the zip folder
+2. Extract it
+3. Done!
 
 _Thank You for Reading_ 
